@@ -10,6 +10,13 @@ public class VIPCustomer extends Customer {
 	private int agentID;		//VIP 고객 담당 상담원 아이디
 	double saleRatio;			//할인율
 	
+	@Override
+	public int calcPrice(int price) {
+		bonusPoint += price * bonusRatio;			//보너스 포인트 적립
+		
+		return price - (int)(price * saleRatio);	//할인된 가격을 계산하여 반환
+	}
+	
 	public VIPCustomer() {
 		/*
 		 * 하위 클래스 생성자만 호출했는데 상위 클래스 생성자가 호출되는 이유는 하위 클래스 생성자에서 super()를 자동으로 호출하기 때문이다.
