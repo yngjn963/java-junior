@@ -312,3 +312,1144 @@ An input string is valid if:
 Open brackets must be closed by the same type of brackets.
 Open brackets must be closed in the correct order.
 Every close bracket has a corresponding open bracket of the same type.
+
+# java-junior
+1544. Make The String Great
+
+1. 인접한 알파벳이 각각 대소문자로 같은 알파벳인지 확인
+ - 방법 :
+  1. 비교할 알파벳을 toUpperCase() or toLowerCase()를 통해 같은 알파벳인지 판별 >> 같은 알파벳일지라도 대소문자가 변환되어 같은 것인지 변환되지 않고 모두 대문자 혹은 소문자로 같은 것인지 판별(변환 전 값과 변환 후 값 비교가 필요)
+  2. 알파벳의 아스키 코드 값으로 알파벳 종류와 대소문자를 판별 + 같은 알파벳의 아스키 코드 값 차이는 32로 동일하므로 인접한 알파벳 아스키 코드 값 차이가 32인지 확인
+ - 인접한 알파벳을 비교하는 방법
+  1. for문
+ 
+2. 같은 알파벳일 경우 두 알파벳을 문자열에서 제거
+ - 방법 :
+  1. String.substring한 값을 다시 String에 대입
+  2. List에 제거 대상이 아닌 알파벳을 add하여 결과 값을 String으로 만듦(for문 필요)
+
+*시나리오를 나눌 수 있는 방법
+Input: s = "abBAcC"
+Output: ""
+Explanation: We have many possible scenarios, and all lead to the same answer. For example:
+"abBAcC" --> "aAcC" --> "cC" --> ""
+"abBAcC" --> "abBA" --> "aA" --> ""
+ - 인접한 알파벳을 비교하는 방향을 어디에서부터 찾아나가는지에 따라 시나리오가 나뉘는 것으로 보인다. 방법의 차이는 아니라고 생각한다.
+
+테스트 결과
+ - 실패 1
+  원인 : 문자열 제거 후 남은 앞의 알파벳과 뒤의 알파벳을 비교하는 로직을 고려하지 않았다. 즉, 현재 로직으로는 비교하고자 하는 알파벳이 통과할 경우 문자열 제거 후 새롭게 인접하게 된 알파벳과 새로 비교하는 로직이 누락되어 있다.
+   - 방법 :
+    1. 알파벳을 비교하는 for문을 완료한 후 알파벳이 제거된 새로운 결과가 나올 경우 다시 비교 for문을 수행한다. >> 문제 : 제거가 계속 수행되는 for문일 경우 반복문 수행을 계속 호출할 필요가 있는 재귀의 시간 복잡도를 갖게 된다.
+	2. 문자열 제거가 일어난 시점에 새로 인접하게 될 두 알파벳을 비교한다.
+	 2.1. i와 i+1의 알파벳이 제거됐을 경우 해당 시점의 i-1과 i+2를 비교한다. >> 문제 : 인접하게 될 알파벳이 계속해서 제거가 필요한 경우 마찬가지로 재귀의 시간 복잡도를 갖게 된다.
+	 2.2. 문자열 제거 후 앞 문자열과 뒤 문자열을 합쳐 리턴한 문자열 s에서 제자리로 돌아와 반복문을 수행하는 것이 아닌 하나 이전의 인덱스에서 다시 비교를 시작한다. >> 반복문 수행 횟수는 경우에 따라 무한으로 늘어날 수 있지만 중첩이 아닌 단일한 반복문을 수행하므로 복잡도를 낮출 수 있을 것이다.
+   
+class Solution {
+	public String makeGood(String s) {
+		for (int i = 0; i <= s.length() - 2; i++) {
+			char[] ca = s.toCharArray();
+			int nAsciiCodeDiffVal = (char)ca[i] - (char)ca[i + 1];
+			//수정1
+			//굳이 char 배열 변수를 할당할 필요가 있을까?
+//			nAsciiCodeDiffVal = s.substring(i, i + 1) - s.substring(i + 1, i + 2);
+			//char 배열이 더 효율적으로 보임
+			//아스키 코드 값으로 변환하기 위해서는 char형변환이 필요하며, substring의 경우 인덱스 오류 방지를 위해 조건문이 추가로 필요할 것으로 보이기 때문이다.
+			if (nAsciiCodeDiffVal == 32 || nAsciiCodeDiffVal == -32) {
+				//substring 인덱스 오류 방지
+				String sFront = i == 0 ? "" : s.substring(0, i);
+				String sBack = i == s.length() - 2 ? "" : s.substring(i + 2);
+				//s에 다시 초기화하여도 새로운 s에 대해 새로운 인덱스로 반복문을 수행하기 때문에 새로운 변수에 할당할 필요가 없다.
+				s = sFront + sBack;
+//				System.out.println("i : " + i + ", s : " + s);
+				//자른 문자열에 대해 현재 인덱스에서 다시 한 번 로직 수행
+				//수정1
+				//새로 인접할 알파벳(자르고 남은 앞 문자열의 마지막 알파벳과 뒷 문자열의 첫 알파벳) 간의 비교를 위해 한 칸 앞의 인덱스에서 다시 비교를 시작한다.
+				//문자열 s의 첫 알파벳일 경우에는 앞 문자열이 없으므로 제자리로 돌아간다.
+				i = i == 0 ? i - 1 : i - 2;
+			}
+		}
+		
+		return s;
+	}
+}
+
+
+1. Two Sum
+Input : int[] nums, int target
+Output : int[] indexes(nums[indexes]의 합이 target이 되는 index 값들)
+Constraint
+1. return 값은 하나만 존재한다고 가정
+2. 동일한 nums[indexes] 값을 두 번 사용할 수 없음
+3.
+ 2 <= nums.length <= 104
+ -10^9 <= nums[i] <= 10^9
+ -10^9 <= target <= 10^9
+ 
+Solution
+1. int[] nums에서 두 요소를 추출하는 모든 경우의 수에서 그 합이 target이 되는 결과를 찾는다.
+ >> nums.length의 최대값은 104(N)로 최대 경우의 수를 구하기 위해서는 104*103(N*(N-1))의 중첩 반복문을 수행해야 한다.
+ 이는 O(N^2)의 시간 복잡도를 갖게 되므로, 복잡도가 큰 방식이라 할 수 있다.
+
+2. 어떠한 두 수를 더해 target 값이 되는 경우의 수에서 해당 두 수가 int[] nums의 요소인지 확인한다.
+ >> -10^9 <= nums[i] <= 10^9, -10^9 <= target <= 10^9의 범위 조건에 따르면
+ target의 최소값 -10^9는 nums[i] 범위에 따라 최소 -10^9와 최대 0의 범위 내 수의 합, -10^9+1은 최소 -10^9와 최대 1의 범위 내 수의 합, ..., 0은 최소 -10^9와 최대 10^9의 범위 내 수의 합, ..., 최대값 10^9는 최소 0과 최대 10^9의 범위 내 수의 합으로 만들어진다.
+ 따라서 target이 0이 될 때 두 수의 경우의 수는 최대가 된다.
+ 이처럼 두 수의 합의 경우의 수를 모두 계산하는 것 또한 1의 방법과 마찬가지로 높은 복잡도를 보일 것으로 보이며, 최소, 최대값에 따라 변하는 경우의 수를 모두 고려하는 것 또한 쉽지 않다고 생각한다.
+ >> 다른 관점
+ 어떠한 두 수를 더해 target 값이 된다는 것은 target의 보수 개념에 해당한다.
+ 즉, 한 수가 정해질 경우 이 수에 대한 target의 보수는 자동으로 도출된다.
+ 따라서 int[] nums에서 i = 0부터 i++ 반복문에서 nums[i] 값에 대응하는 target의 보수 값을 찾고, 이 값이 int[] nums의 요소인지 확인하면 된다.
+ >>> Condition
+ if(nums.contain(target - nums[i])) //int[] 배열의 경우 요소가 존재하는지 확인하기 위해서는 직접 반복문에서 찾거나, String[] 혹은 List로 변환하여 찾아야 한다.
+ -- 수정
+ 문제의 return 값은 indexes이므로, nums[indexes]와 indexes 값이 함께 저장되어야 한다. 따라서 Map을 활용하는 것이 좋다.
+ Condition == true >> i와 Map에서 target - nums[i] 값을 target의 보수로 찾는 index(이전 요소에서 Map에 보수를 기록한 index)를 함께 return 한다.
+ Condition == false >> i++ 하면서 다시 조건을 탐색한다. + i++ 하기 전에 보수 value와 i를 Map에 담는다.
+
+
+20. Valid Parentheses
+Input : String s
+Output : boolean isValid
+ Valid if
+ 1. 여는 괄호는 동일한 종류의 괄호로 닫아야 한다.
+ 2. 여는 괄호는 올바른 순서대로 닫아야 한다.
+ 3. 모든 닫는 괄호는 동일한 종류로 대응되는 여는 괄호가 있다.
+ 
+Solution
+먼저 s를 괄호 문자 하나씩 잘라 배열 형태로 만들어 반복문을 수행할 수 있게 한다.
+0. s가 여는 괄호로 시작하는 지 확인한다.
+1. 여는 괄호일 경우 그에 대응하는 닫는 괄호를 Stack에 넣는다.
+2. 닫는 괄호일 경우 괄호가 순서에 맞게 닫고 있는지 확인하기 위해 Stack에서 peek() 메서드로 추출한 괄호와 비교한다.
+비교하여 일치할 경우에는 순서와 종류에 맞는 닫는 괄호이므로 다음 반복문으로 넘어간다(Condition == true).
+3. 규칙에 맞지 않는 괄호가 있을 경우 isValid = false 값을 반환하고 반복문을 종료한다(Condition == false).
+4. return false 없이 반복문이 모두 수행됐다면, Stack이 모두 비워졌는지 확인하여 비워졌다면 return true, 아니면 return false 값을 반환한다.
+ >>> Condition 1
+ + 반복문에서 항상 조건을 탐색하지는 않는다. 여는 괄호일 경우와 닫는 괄호일 경우를 나눈다. 아래 조건은 닫는 괄호일 때만 수행하도록 조건문 내의 조건문으로 확인한다.
+ if(bracket[i] == Stack.peek())
+ Condition == true >> 다음 반복문 수행
+ Condition == false >> isValid = false 값을 return
+ >>> Condition 2
+ if(Stack.isEmpty())
+ Condition == true >> isValid = true
+ Condition == false >> isValid = false
+
+
+35. Search Insert Position
+Input : int[] nums, int target
+Output : int index(int[] nums에 요소로 target이 있을 경우 index, 없을 경우 target이 들어갈 때 위치할 index)
+
+Solution >> Up-Down
+1. int[] nums의 가운데 위치한 요소를 선택한다.
+2. 선택한 요소와 target 값을 비교하여 같을 경우에는 해당 요소의 index를 반환한다.
+3. 같지 않을 경우, target이 선택한 요소보다 작으면 처음부터 선택한 요소 - 1번째 요소까지로, 크면 선택한 요소 + 1번째부터 마지막 요소까지로 범위를 조정하여 1의 순서로 돌아가 반복문을 수행한다.
+4. target과 같은 값의 요소가 없을 경우 범위 조정 과정에서 선택한 요소에 -1 혹은 + 1한 값이 범위 시작의 index 값보다 작아지거나 커진다(다시 말해, 범위 시작 index가 끝 index보다 작아질 수 있다).
+즉, int[] nums에서 같은 값을 갖는 요소를 찾지 못해 범위 index의 역전이 발생하게 되는 것이다. 따라서 무한 반복의 종료를 해당 조건으로 판단한다.
+ >>> Condition
+ + start <= end이면 계속 반복
+ if(nums[mid] == target) >> return mid
+ else if(nums[mid] < target) >> start ~ mid-1 범위에서 다시 탐색
+ else >> mid+1 ~ end 범위에서 다시 탐색
+트리
+ - 노드 : 동그라미. 보통 데이터가 담기는 곳
+ - 엣지 : 노드와 노드 사이를 이어주는 선. 노드간의 관계
+ - 경로 : 엣지로 연결된, 즉 인접한 노드들로 이뤄진 시퀀스. 경로의 길이는 경로에 속한 엣지의 수
+ - 트리의 높이 : 루트 노드에서 말단 노드에 이르는 가장 긴 경로의 엣지 수.
+ - 트리의 깊이 : 루트 노드에서 특정 노드까지 경로의 엣지 수. 특정 깊이를 가지는 노드의 집합을 레벨이라고 부른다.
+ - 트리의 속성 중 가장 중요한 것은 '루트 노드를 제외한 모든 노드는 단 하나의 부모 노드를 가진다'는 것이다. 이 속성 때문에 트리는 다음 성질을 만족한다.
+	- 임의의 노드에서 다른 노드로 가는 경로는 유일하다.
+	- 회로(cycle)가 존재하지 않는다.
+	- 모든 노드는 서로 연결되어 있다.
+	- 엣지를 하나 자르면 트리가 두 개로 분리된다.
+	- 엣지의 수는 노드의 수에서 1을 뺀 것과 같다
+이진 트리 : 자식 노드가 최대 두 개인 노드들로 구성된 트리. 정이진트리(full binary tree), 완전이진트리(complete binary tree), 균형이진트리(balanced binary tree) 등이 있다.
+ - 정이진트리 : 모든 레벨에서 노드들이 꽉 채워진(=잎새 노드를 제외한 모든 노드가 자식 노드 2개를 가짐) 이진트리
+ - 완전이진트리 : 마지막 레벨을 제외한 모든 레벨에서 노드들이 꽉 채워진 이진트리
+	- 정이진트리와 완전이진트리는 1차원 배열로도 표현이 가능하다.
+ - 균형이진트리 : 모든 잎새 노드의 깊이 차이가 많아야 1인 트리. 예측 가능한 깊이를 가지며, 노드가 n개인 균형이진트리의 깊이는 log n을 내림한 값. => 모든 잎새 노드라는 표현은 적절하지 않을 것으로 보인다. 정확한 표현은 두 서브 트리의 깊이 차이가 1 이하인 트리 구조를 균형 이진트리라고 하며, 이를 균형이 잡힌 상태라고 부른다.
+ 다시 말해 깊이 차이가 2 이상인 경우에는 균형이 깨졌다고 하며, 이러한 구조의 트리는 회전을 통해 균형을 맞추는 작업을 거칠 수 있다.
+ 아마 균형이진트리에서 N개의 노드에 대한 시간 복잡도가 O(log N)이 나오는 것으로 보인다. 깊이 h에 대한 시간 복잡도 O(h)를 갖지만 일반적으로 데이터 수에 대한 복잡도를 나타내므로 h를 N 값으로 치환하면
+ N <= 2^h-1 => h = log N+1 => O(h) = O(log N)
+ 
+위 포화 이진트리(정 이진트리) 같은 경우에는 루트 노드를 1번으로 하고 레벨별로 왼편에서 오른 편오로 차례로 노드 위치에 번호를 2^(h+1)-1까지 부여가 가능하다.
+그런데 만일 높이가 h이고 노드 수가 n, 일때 n<=(2^(h+1)-1)인 이진트리를 노드의 레벨 순수에 따라 노드 번호를 붙인다면 이때 각 노드 번호의 위치가 포화 이진트리 번호 1에서 n까지의 위치와 모두 정확하게 일치한다면 이 트리를 완전 이진트리라고 한다.
+즉 루트 노드를 1이라고 하고 그외에 모든 노드가 왼쪽에서부터 오른쪽까지 꽉 차서 노드의 수가  n<=()라면 완전 이진트리이다. 아래 그림은 완전 이진트리의 예이다.
+
+
+70. Climbing Stairs
+Input : int n(계단 수)
+Output : int numberOfCases
+Constraint
+1. 계단은 1계단 혹은 2계단 오를 수 있다.
+
+Solution
+1. 1과 2를 조합하여 숫자 n을 만드는 경우의 수 : n = 1*a + 2*b(a <= n까지 n번의 반복문)
+반복문 내에서 1과 2를 나열하는 경우의 수를 연산하여 총 경우의 수를 누적한다.
+2. 
+n = 1일 때 계단을 오르는 경우의 수 -> n = 2일 때 계단을 오르는 경우의 수는 1계단에서 1 step 하는 경우와 0계단에서 2 step 하는 경우의 합으로 구해진다
+-> n = 3일 때의 경우의 수는 마찬가지로 1계단에서 2 step 하는 경우와 2계단에서 1 step 하는 경우의 수로 구해진다 -> 이렇게 n은 마지막 계단을 1 step 오르는 경우와 2 step 오르는 경우의 합으로 구해지며 이는 n-1과 n-2 계단의 경우의 수 합으로 구할 수 있다.
+>>
+우선 인덱스 대신 계단 개수로 표기하면
+[0]
+[1] = 1
+[2] = [1] + 1
+[3] = [2] + [1]
+...
+[n] = [n-1] + [n-2] => 즉 1부터 n-1까지의 경우의 수 값이 저장되어 있어야 하며, 1부터 n까지 경우의 수 계산을 수행한다.
+ >> Condition
+ 반복 : n까지
+ 종료 조건 : 없음
+ 수행 : [n] = [n-1] + [n-2]
+
+
+94. Binary Tree Inorder Traversal
+Input : TreeNode root
+Output :
+
+Solution
+*
+Preorder Traversal
+InOrder Traversal
+Postorder Traversal
+
+
+101. Symmetric Tree
+Input : TreeNode root
+Output : boolean isSymmetric
+
+Solution
+1. 주어진 배열을 트리 깊이에 따라 가상으로 자른다(나눈다, 그룹핑한다).
+같은 그룹 내에서 대칭인지 확인한다.
+ 예상 시간 복잡도 : 깊이 * 동일 깊이 내 모든 노드(혹은 모든 노드의 1/2)에 연산 필요 = h * 2^(h-1) = logN * 2^(logN - 1)
+ 
+2. 순회(탐색)으로 도출한 값들을 Queue에 넣는다.
+역순회(탐색)를 수행하면서 Queue에서 값들을 하나씩 비교하여 서로 일치하는 지 확인한다(대칭이라면 역순회로 도출해도 순회에서 먼저 들어간 값이 먼저 나와야 하므로 FIFO)
+단, 순회 시 root까지만 수행한다.
+ 예상 시간 복잡도 : 균등 노드일 때 깊이 h에 대하여 1/2logN의 연산은 수행할 것으로 보이므로 O(logN)의 시간 복잡도를 보인다.
+ 도출한 값을 저장할 Queue에 대한 추가 공간이 필요하다.
+ >> Condition 1
+ 수행 : 순회(조건 없음)
+ >> Condition 2
+ 수행 : 역순회
+ 종료 조건 : 역순회에서 탐색한 값이 Queue.poll()한 값과 일치할 경우 다음 순회 진행, 일치하지 않을 경우 isSymmetric = false return
+
+
+104. Maximum Depth of Binary Tree
+Input : TreeNode root
+Output : int maxDepth
+
+Solution
+* Tree 구조에 대한 이해
+Tree 객체는 멤버변수로 Tree 객체를 갖는 구조이다.
+즉 특정 Node에 로직을 적용할 경우, 그 Node의 멤버변수인 하위 노드를 참조하여 동일하게 적용할 수 있다.
+root Node인 Top부터 하위로 이어지는 Down 방식인 재귀식 구현 방식을 생각해볼 수 있다.
+1. maxDepth를 return 하는 메서드에 root 인자를 던질 경우 root Node의 left, right 노드인 TreeNode 객체를 다시 인자로 던지는 maxDepth 메서드를 호출하는 재귀식을 구현한다.
+2. maxDepth를 return 해야 하므로 left route와 right route 중 더 큰 값을 return 하는 Math.max() 메서드를 활용한다.
+ >> Condition 1
+ 수행 : 순회
+ 조건 : 인자로 받은 TreeNode 객체가 null이 아닐 경우(최하위 노드까지 수행)
+ Condition == true >> 자기 자신을 depth = 1로 계산하고, 하위 노드의 maxDepth로 얻은 값을 더하여 return 한다.
+ Condition == false >> 더 이상 Node가 없으므로 0을 return 한다.
+
+
+108. Convert Sorted Array to Binary Search Tree
+Input : int[] nums
+Output : TreeNode tnBST
+
+Solution
+1. 균형 이진 트리를 만들기 위해 배열의 mid index를 value로 초기화하고 index를 기준으로 왼쪽 요소는 left TreeNode로, 오른쪽 요소는 right TreeNode로 배치하면 된다.
+그래야만 가장 하위 노드가 1개만 남더라도 높이 차이가 1인 균형 이진 트리로 구성된다.
+따라서 index를 기준으로 value, left, right를 초기화하고 left, right의 경우 재귀 함수로 수행하도록 한다.
+ >> Condition
+ if(nums.length > 0)
+ Condition == true >> value, left, right 초기화
+ Condition == false >> return ?? >> Solution에서 요구하는 sortedArrayToBST 메서드는 TreeNode 객체를 반환한다. 재귀 함수의 결과 역시 TreeNode 객체를 반환해야 최종 TreeNode 객체가 완성될 것이며, 따라서 재귀 함수에는 추가적으로 TreeNode 객체를 인자로 넘겨주어야 한다.
+ 이는 노드에 대한 하위 노드를 재귀적으로 초기화해줘야 Tree 구조를 완성할 수 있기 때문이기도 하다.
+ -- 수정
+ 메서드 인자로 넘길 배열의 index 정보만 넘겨줘도 해당 메서드 내에서 생성하여 return한 TreeNode 객체로 left, right를 초기화하는 것이기 때문에 넘겨줄 필요가 없다.
+
+
+118. Pascal's Triangle
+Input : int numRows
+Output : List<List<Integer>> pascalTriangle
+
+Solution
+1. 가장 위 꼭지점부터 numRows 개수만큼 삼각형을 크기를 키운다고 생각한다.
+n행 m열의 값음 n-1행 m열의 값과 n-1행 m+1열의 값이 더해져 초기화된다.
+ >> Condition
+ for (i = 1; i <= numRows; i++) 반복문 수행
+ 수행 : 1부터 numRows까지의 각 행은 행 숫자만큼 열의 크기를 갖는다. 따라서 j는 1부터 numRows까지의 내부 반복문이 필요하다. -- 수정 : numRows까지일 경우 모든 층의 열을 동일하게 수행하므로 삼각형 모양이 아닌 사각형 모양이다. j 값은 i 값에 따라 변동되어야 한다.
+ 내부 반복문에서는 실제 n행 m열에 들어갈 값을 i, j 값으로부터 도출한다.
+ 그러기 위해서는 i와 j가 시작하는 행과 열에 대한 초기화가 필요하며, 이 값은 1이다.
+
+
+121. Best Time to Buy and Sell Stock
+Input : int[] prices >> Output : int maxProfit
+Flow
+1. prices 배열에서 ith day에 해당하는 가격에 주식 한 주를 구입한다.
+2. i보다 큰 yth day의 주식 가격에 팔았을 때 차액이 가장 큰 경우를 구한다.
+ 2.1. 차액이 모두 마이너스일 경우 주식 거래가 일어나지 않는다고 결론 짓고 0을 반환한다.
+
+Solution
+Flow 1 : day i 선택
+Flow 2 : day i 선택에 따른 day y 선택
+1. 0부터 차례대로 넘어가며 전 값보다 작아지는 i 선택. 이후에는 플러스 차액을 기록. 계속 진행하며 i보다 작은 값이 나온다면? 1. 최대 차액이 그 전에 나온다. 2. 최대 차액이 그 후에 나온다. 그냥 최소 값 변수와 차액 변수만 가지고 있으면 비교 조건으로 최대 차액을 구할 수 있다고 생각.
+
+
+★★
+136. Single Number
+Input : int[] nums >> Output : int singleElementNumber
+★★
+Constraints
+use only constant extra space : 의미를 잘 모르겠다.
+Flow
+1. nums element가 처음 나왔는가? true >> 일단 저장, false >> 저장되어 있는 element 제거 후 통과
+2. 저장한 공간에 남은 숫자를 반환한다.
+
+Solution
+1.
+Flow 1 : i = 0부터 Map에 i 값을 key로 하는 element를 찾는다. 없으면 add() 하고, 있으면 remove() 한다.
+Flow 2 : Map에서 keySet()으로 남은 key 값을 찾아 해당 key 값을 반환한다.
+2.
+Flow 1-1 : i = 0부터 Map에서 i 값을 key로 하는 value에 count를 1씩 증가시키는 반복문을 수행한다(nums 요소 전체 수행하여 다음 번 탐색을 위한 준비)
+Flow 1-2 : i = 0부터 i 값을 key로 Map의 value를 찾아 value가 1인 key 값을 찾아 반환한다.
+★★
+XOR 비트 논리 연산자 활용
+정수를 비트(2진수로) 표현하면 2^0 2^1 2^2 ... 2^n 형태가 된다.
+^ 연산자(XOR 연산자)는 승에 해당하는 0 1 2 ... n의 비트끼리 연산하여 값이 같으면 0, 다르면 1을 반환한다.
+nums 요소는 조건에 따라 쌍을 이루는 수를 제외한 나머지 한 개의 수가 남게 되는데,
+이는 ^ 연산자로 표현할 경우 각 승에 해당하는 비트에서 쌍을 이루는 값을 제외한 나머지 하나의 값으로 구할 수 있게 된다.
+예를 틀어 2^0 비트에 해당하는 곳에 3개의 수가 각각 0, 0, 1의 값일 경우 0 ^ 0 = 0, 0 ^ 1 = 1이 되어 쌍이 아닌 수 1이 결과 값과 일치하는 것을 볼 수 있다.
+만약 비트 한 자리에 모두 수가 같은 경우에는 ^ 연산자에 따라 0 ^ 0 ^ 0 = 0, 1 ^ 1 ^ 1 = 1(1 ^ 1 = 0, 0 ^ 1 = 1)이므로 해당 자리에 대해서도 같은 결과 값을 얻을 수 있다.
+이로 보아 ^ 연산자는 쌍으로 존재하는 수 가운데 유일하게 한 개의 수가 있을 경우 해당 수를 도출하는 데 사용할 수 있는 연산자의 개념이 된다.
+
+
+141. Linked List Cycle
+Input : ListNode head, (int pos - 제시되지만 메서드 호출 시 파라미터로 넘기지 않음) >> Output : boolean hasCycle
+Flow
+1. pos 값이 0 ~ head.size() - 2 사이의 값인가? hasCycle = true, 아니면 false
+-- 수정 pos 값은 파라미터로 넘기지 않는다. 즉, pos 값과 관계없이 조건으로 true or false를 결정할 수 있는 포괄적 규칙을 생성해야 한다.
+>> ListNode 클래스는 다음 노드인 ListNode next 클래스를 변수로 가지고 있다.
+무한으로 next에 접근하여도 null이 아닐 경우 cycle을 가지고 있다고 할 수 있다. 만약 cycle 없이 무한으로 연결되어 있는 ListNode라면?? ListNode 클래스를 element로 갖는 List에 head부터 지나온 노드를 담고 next를 수행하면서 List에 있는 노드와 비교하여 같은 경우 cycle을 판단한다.
+★★
+지나온 노드에 Flag를 표시한다.
+ListNode에는 boolean형 변수가 없기 때문에 true/false 개념의 flag 형태를 표시할 수는 없다. 따라서 제시된 문제의 제약 조건을 활용한다.
+문제에서 제시된 조건은 -10^5 <= Node.val <= 10^5의 범위이므로 지나온 Node.val에 범위 밖의 숫자를 초기화한 뒤 next Node의 val 값이 범위 밖의 숫자에 해당하는지 확인하면 된다.
+범위 밖의 숫자라면 내가 지나오면서 강제로 넣어준 값이므로 다시 돌아왔다는 의미기 때문에 순환한다고 할 수 있다.
+
+
+160. Intersection of Two Linked Lists
+Input : ListNode listA, ListNode listB, (int intersectVal - input으로 주어지지 않는다.) >> Output : ListNode intersectListNode
+Flow
+1. listA 노드와 listB 노드 간의 직접 비교 : listA 노드 수를 a, listB 노드 수를 b라고 하면 매칭 여부를 계산하기 위해서는 a*b번의 수행이 필요하다.
+2. listA 노드 전체를 int val와 ListNode next를 key와 value로 하는 Map에 담는다. 모두 담은 후에 listB 노드 중 Map에서 매칭되는 노드가 있는지 확인 후 가장 먼저 매칭되는 Node를 반환한다.
+★★
+공통의 노드로 합쳐질 경우 공통 노드의 길이는 같다는 점을 이용한다.
+listA와 listB의 길이는 같다는 보장이 없기 때문에 A, B 각각의 전체 노드에서 공통 노드가 시작되는 지점은 다를 수 있다.
+하지만 listA에 listB를 결합한 것과 listB에 listA를 결합한 것의 전체 노드 길이는 동일하다. 결합한 두 노드는 끝 부분이 listA와 listB와 같으므로 결합한 노드를 비교하는 것과 A, B 노드를 비교하는 것이 같은 셈이다.
+결합한 노드의 길이는 같기 때문에 전체 노드에서 공통 노드가 시작되는 지점은 같아지게 된다.
+따라서 이 intersectVal을 찾으면 된다.
+
+
+169. Majority Element
+
+Given an array nums of size n, return the majority element.
+
+The majority element is the element that appears more than ⌊n / 2⌋ times. You may assume that the majority element always exists in the array.
+
+ 
+
+Example 1:
+
+Input: nums = [3,2,3]
+Output: 3
+Example 2:
+
+Input: nums = [2,2,1,1,1,2,2]
+Output: 2
+ 
+
+Constraints:
+
+n == nums.length
+1 <= n <= 5 * 104
+-109 <= nums[i] <= 109
+
+
+package com.lg;
+
+import java.io.IOException;
+import java.util.Stack;
+
+public class Kyjtest4
+{
+	
+	public static void main(String[] args) throws IOException
+	{
+//		Stack<String> stack = new Stack<String>();
+//		stack.push("a");
+//		stack.push("b");
+//		stack.push("c");
+//		stack.pop();
+//		String peekVal = stack.peek();
+//		System.out.println(peekVal);
+//		
+//		System.out.println(stack);
+//		System.out.println(stack.toString());
+//		
+//		stack.clear();
+//		System.out.println(stack);
+		Solution sol = new Solution();
+		System.out.println(sol.isValid("()"));
+		System.out.println(sol.isValid("()[]{}"));
+		System.out.println(sol.isValid("({[]})"));
+		System.out.println(sol.isValid("(()())"));
+		System.out.println(sol.isValid("(]"));
+	}
+}
+
+class Solution
+{
+	public boolean isValid(String s) {
+		
+		if (s.length() % 2 != 0) {
+			return false;
+		}
+		
+		Stack<Character> st = new Stack<Character>();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			switch (c) {
+				case '(':
+					st.push(')');
+					break;
+				case '{':
+					st.push('}');
+					break;
+				case '[':
+					st.push(']');
+					break;
+				default:
+					if (i == 0 || st.empty()) {
+						return false;
+					}
+					
+					char cp = st.peek();
+					if (c == cp) {
+						st.pop();
+					} else {
+						return false;
+					}
+					break;
+			}
+			
+			if (i == s.length() - 1 && !st.empty()) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+}
+
+
+package com.lg;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+
+public class Kyjtest6
+{
+	
+	public static void main(String[] args) throws IOException
+	{
+		int[] nums = {2, 7, 11, 15};
+		int target = 9;
+		
+		long start = System.nanoTime();
+		
+		int[] output = new int[2];
+		boolean flag = false;
+		
+		for (int i = 0; i < nums.length - 1; i++) {
+			//nums[i] 값이 결정
+			//i에 대한 output의 보수는 유일하며, 그 결과도 유일하다고 가정되었기 때문에
+			//i에 해당하는 j 역시 결정된 것이다.
+			//따라서 j가 nums의 요소인지만 확인하면 된다.
+			//답변2로 구현해보자!
+			for (int j = i + 1; j < nums.length; j++) {
+				if (nums[i] + nums[j] == target) {
+					output[0] = i;
+					output[1] = j;
+					flag = true;
+					break;
+				}
+			}
+			if (flag) {
+				break;
+			}
+		}
+		System.out.println("Output: [" + output[0] + "," + output[1] + "]");
+		
+		long end = System.nanoTime();
+		System.out.println("Test: " + (end - start) * 1e-9 + " sec.");
+		
+		start = System.nanoTime();
+		
+		output = new int[nums.length];
+		int num2 = 0;
+		Integer[] nums2 = new Integer[nums.length];
+		for (int i = 0; i < nums.length; i++) {
+			nums2[i] = nums[i];
+		}
+		
+		for (int i = 0; i < nums.length - 1; i++) {
+			//답변2
+			int num1 = nums[i];
+			num2 = target - num1;
+//			System.out.println(num1);
+//			System.out.println(num2);
+//			System.out.println(Arrays.asList(nums2).contains(num2));
+			//int[]을 asList할 경우 primitive 타입을 자동 형변환해주지 않기 때문에 List<int[]> 타입을 리턴한다.
+			//원하는 결과값을 얻기 위해서는 Integer[]을 asList 메소드에 넘겨주어야 한다.
+			if ((num2 >= -1000000000 && num2 <= 1000000000) && Arrays.asList(nums2).contains(num2)) {
+				output[0] = i;
+				break;
+			}
+		}
+		for (int i = output[0] + 1; i < nums.length; i++) {
+			if (nums[i] == num2) {
+				output[1] = i;
+				break;
+			}
+		}
+		//num1 값(정확히 말하면 num1 값에 대한 target의 보수인 num2 값)과 인덱스를 별도의 map 변수에 저장하여
+		//하나의 for문 안에서 해당 num1에 대한 num2 값이 nums 배열에 있는지 확인할 수 있다.
+		//이를 적용하여 답변3을 작성해보자.
+		
+		System.out.println("Output: [" + output[0] + "," + output[1] + "]");
+		
+		end = System.nanoTime();
+		System.out.println("Test: " + (end - start) * 1e-9 + " sec.");
+		
+		start = System.nanoTime();
+		
+		output = new int[nums.length];
+		HashMap<Integer, Integer> hmOutput = new HashMap<Integer, Integer>();
+		
+		for (int i = 0; i < nums.length; i++) {
+			//결과(보수 값과 인덱스) map 넣기
+			hmOutput.put(target - nums[i], i);
+			
+			//map에서 현재 num가 존재하는지 찾기
+			if (i > 0) {
+				if (hmOutput.containsKey(nums[i]) && hmOutput.get(nums[i]) != i) {	//자기 자신(숫자가 아닌 인덱스로)을 보수로 갖는 경우를 제외(두 번 사용하지 않는다고 했기 때문에)
+					output[0] = hmOutput.get(nums[i]);
+					output[1] = i;
+					break;
+				}
+			}
+			//순서를 바꾸면 조건을 줄일 수 있다.
+			//먼저 찾고 나중에 넣으면 자기 자신을 제외해야 하는 조건을 주지 않아도 된다.
+			
+			//현재 인덱스를 기준으로
+			//지난 인덱스의 value와 비교하는 것이다.
+			//즉, 0번째 인덱스는 비교 대상이 없으니 수행하지 않고, 1번째 인덱스는 0번째 인덱스 값과 비교, 2번째 인덱스는 1,2번째 인덱스 값과 비교해가는 식이다.
+			//for문이 전체 수행된다면, 모든 경우의 수에 대해 비교가 가능한 것이다.
+		}
+		
+		System.out.println("Output: [" + output[0] + "," + output[1] + "]");
+		end = System.nanoTime();
+		System.out.println("Test: " + (end - start) * 1e-9 + " sec.");
+		//추가 고려 사항
+		//범위 제약 사항에 따라 변수를 int가 아닌 long 타입으로 선언해야할 수도 있다.
+	}
+}
+
+
+package com.lg;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+public class Kyjtest7
+{
+	public Node root;
+	
+	private boolean find(int value) {
+		Node currentNode = root;
+		while (currentNode != null) {
+			if (value == currentNode.getValue()) {
+				return true;
+			} else if (value < currentNode.getValue()) {
+				currentNode = currentNode.getLeft();
+			} else {
+				currentNode = currentNode.getRight();
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean insert(int value) {
+		Node newNode = new Node(value);
+		if (find(value)) {
+			return false;
+		}
+		if (root == null) {
+			root = newNode;
+			return true;
+		}
+		
+		Node currentNode = root;
+		Node parentNode;
+		while (true) {
+			parentNode = currentNode;
+			if (value < currentNode.getValue()) {
+				currentNode = currentNode.getLeft();
+				if (currentNode == null) {	//더 이상 왼쪽노드가 없을 경우
+					parentNode.setLeft(newNode);
+					return true;
+				}
+			} else {
+				currentNode = currentNode.getRight();
+				if (currentNode == null) {
+					parentNode.setRight(newNode);
+					return true;
+				}
+			}
+		}
+	}
+	
+	//전위 탐색(Preorder Traversal) : root -> left -> right
+	//전위 탐색은 깊이 우선 탐색(DFS)
+	private List<Integer> preOrderTraverse(Node focusNode, List<Integer> integers) {
+		if (focusNode != null) {
+			integers.add(focusNode.getValue());
+			preOrderTraverse(focusNode.getLeft(), integers);
+			preOrderTraverse(focusNode.getRight(), integers);
+		}
+		
+		return integers;
+	}
+	
+	//중위 탐색(Inorder Traversal) : left -> root -> right
+	//중위 탐색은 오름차순 정렬
+	private List<Integer> inOrderTraverse(Node focusNode, List<Integer> integers) {
+		if (focusNode != null) {
+			inOrderTraverse(focusNode.getLeft(), integers);
+			integers.add(focusNode.getValue());
+			inOrderTraverse(focusNode.getRight(), integers);
+		}
+		
+		return integers;
+	}
+	
+	//후위 탐색(Postorder Traversal) : left -> right -> root
+	private List<Integer> postOrderTraverse(Node focusNode, List<Integer> integers) {
+		if (focusNode != null) {
+			postOrderTraverse(focusNode.getLeft(), integers);
+			postOrderTraverse(focusNode.getRight(), integers);
+			integers.add(focusNode.getValue());
+		}
+		
+		return integers;
+	}
+	
+	//너비 우선 탐색(BFS)
+	//층별 탐색 - Queue 이용
+	private List<Integer> BFS(Node focusNode) {
+		if (focusNode == null) {
+			return null;
+		}
+		
+		List<Integer> result = new ArrayList<Integer>();
+		Queue<Node> queue = new LinkedList<Node>();
+		queue.add(focusNode);
+		
+		while (!queue.isEmpty()) {
+			int size = queue.size();
+			for (int i = 0; i < size; i++) {
+				Node poll = queue.poll();
+				
+				if (poll.getLeft() != null) {
+					queue.add(poll.getLeft());
+				}
+				if (poll.getRight() != null) {
+					queue.add(poll.getRight());
+				}
+				
+				result.add(poll.getValue());
+			}
+		}
+		
+		return result;
+	}
+	
+	public static void main(String[] args) throws IOException
+	{
+		
+	}
+}
+
+class Solution {
+	public int searchInsert(int[] nums, int target) {
+		int startIdx = 0;
+		int endIdx = nums.length - 1;
+		
+		while (startIdx <= endIdx) {
+			int searchIdx = (startIdx + endIdx) / 2;
+			int searchValue = nums[searchIdx];
+			
+			if (target == searchValue) {
+				return searchIdx;
+			} else if (target < searchValue) {
+				endIdx = searchIdx - 1;
+			} else {
+				startIdx = searchIdx + 1;
+			}
+		}
+		
+		return startIdx;
+	}
+}
+
+class Node {
+	Node left;
+	Node right;
+	int value;
+	
+	public Node(int value) {
+		this.value = value;
+		this.left = null;
+		this.right = null;
+	}
+	
+	public Node getLeft() {
+		return left;
+	}
+	
+	public void setLeft(Node left) {
+		this.left = left;
+	}
+	
+	public Node getRight() {
+		return right;
+	}
+	
+	public void setRight(Node right) {
+		this.right = right;
+	}
+	
+	public int getValue() {
+		return value;
+	}
+	
+	public void setValue(int value) {
+		this.value = value;
+	}
+}
+
+
+package com.lg;
+
+import java.io.IOException;
+
+public class Kyjtest8
+{
+	
+	public static void main(String[] args) throws IOException
+	{
+		//시간복잡도
+		/*
+		 * 알고리즘에 의해서 수행되는 연산의 개수를 세어 예측할 수 있다.
+		 * 그러므로 걸리는 시간의 총량과 알고리즘에 의해 수행되는 기본 연산의 개수는 최대 상수 인자만큼 다르다.
+		 */
+		int sum1 = 0;
+		for (int i = 0; i < N; i++) {
+			sum1 += i;
+		}
+		//연산 수행 수
+		/*
+		 * sum = 0; 1번
+		 * i = 0; 1번
+		 * sum += i; N번
+		 * i++ N번
+		 * 총 = 2N + 2번
+		 * Big-O 표기법에서는 최대 차항만 계수없이 표기하면 되기 때문에 O(N)
+		 */
+		
+		int sum2 = (N + 1) * N / 2;
+		//연산 수행 수
+		/*
+		 * N + 1 1번
+		 * * N 1번
+		 * 2 1번
+		 * sum2 대입 1번
+		 * 총 = 4번
+		 * Big-0 표기법으로 O(1)
+		 */
+		
+		int sum3 = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < i; j++) {
+				sum3 += j;
+			}
+		}
+		//연산 수행 수
+		/*
+		 * 바깥쪽 반복문은 N번, 안쪽 반복문은 i 값에 따라 반복
+		 * i는 0부터 N-1까지 변하고, 안쪽 반복문은 해당 i만큼 반복하므로 0+1+2+...+N-1 = N*(N-1)/2번(등차수열의 합) 반복한다.
+		 * 따라서 O(N^2)
+		 */
+		
+		int sum4 = 0;
+		for (int i = N; i > 0; i /= 2) {
+			for (int j = 0; j < i; j++) {
+				sum4 += j;
+			}
+		}
+		//연산 수행 수
+		/*
+		 * 바깥쪽 반복문은 lgN번(i /= 2이기 때문), 안쪽 반복문은 i 값에 따라 반복
+		 * i는 N부터 1까지 변하고, 안쪽 반복문은 해당 i만큼 반복하므로 N+N/2+N/4+...+1 = 2N번(등비수열의 합) 반복한다.
+		 * 따라서 O(N) -- 왜 반복의 총 합이 2N이어서 복잡도가 O(N)이 되는거지??
+		 * -- 위처럼 계산한 사람이 잘못 계산한 듯하다.
+		 */
+	}
+}
+
+
+package com.lg.zz;
+
+/**
+ * Definition for singly-linked list.
+ * @author A76314
+ *
+ */
+public class ListNode
+{
+	int val;
+	ListNode next;
+	
+	ListNode(int x) {
+		val = x;
+		next = null;
+	}
+}
+
+
+package com.lg.zz;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class SolutionTest
+{
+	
+	public static void main(String[] args)
+	{
+		Solution s = new Solution();
+		long startTime;
+		long endTime;
+		//121. Best Time to Buy and Sell Stock
+//		int[] prices1 = {7,1,5,3,6,4};
+//		System.out.println(s.maxProfit(prices1));
+//		int[] prices2 = {7,6,4,3,1};
+//		System.out.println(s.maxProfit(prices2));
+		
+		//136. Single Number
+//		int[] nums1 = {2,2,1};
+//		//1
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber1(nums1));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+//		//2
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber2(nums1));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+//		//3
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber3(nums1));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+//		//4
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber4(nums1));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+		/*
+			1
+			0.0013297 sec.
+			0 byte
+			1
+			1.121E-4 sec. = 0.0001121 sec.
+			0 byte
+			1
+			8.690000000000001E-5 sec. = 0.0000869 sec.
+			0 byte
+			1
+			6.400000000000001E-5 sec. = 0.000064 sec.
+			0 byte
+		 */
+//		int[] nums2 = {4,1,2,1,2};
+//		//1
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber1(nums2));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+//		//2
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber2(nums2));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+//		//3
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber3(nums2));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+//		//4
+//		startTime = System.nanoTime();
+//		System.out.println(s.singleNumber4(nums2));
+//		endTime = System.nanoTime();
+//		System.out.println((endTime - startTime) * 1e-9 + " sec.");
+		
+		//141. Linked List Cycle
+//		ListNode head1 = new ListNode(3);
+//		head1.next = new ListNode(2);
+//		head1.next.next = new ListNode(0);
+//		head1.next.next.next = new ListNode(-4);
+//		head1.next.next.next.next = head1.next;
+//		System.out.println(s.hasCycle1(head1));
+//		ListNode head2 = new ListNode(1);
+//		head2.next = new ListNode(2);
+//		System.out.println(s.hasCycle1(head2));
+//		System.out.println(s.hasCycle2(head1));
+//		System.out.println(s.hasCycle2(head2));
+		
+		//160. Intersection of Two Linked Lists
+		ListNode listA = new ListNode(4);
+		listA.next = new ListNode(1);
+		listA.next.next = new ListNode(8);
+		listA.next.next.next = new ListNode(4);
+		listA.next.next.next.next = new ListNode(5);
+		ListNode listB = new ListNode(5);
+		listB.next = new ListNode(6);
+		listB.next.next = new ListNode(1);
+		listB.next.next.next = listA.next.next;
+		System.out.println(s.getIntersectionNode1(listA, listB) == listA.next.next);
+	}
+	
+}
+
+class Solution {
+	
+	long beforeMemory;
+	long afterMemory;
+	
+	//121. Best Time to Buy and Sell Stock
+	public int maxProfit(int[] prices) {
+		
+		int minPrice = prices[0];
+		int profit = 0;
+		
+		for (int i = 1; i < prices.length; i++) {
+			
+			if (prices[i] < minPrice) {
+				minPrice = prices[i];
+			}
+			
+			if (prices[i] - minPrice > profit) {
+				profit = prices[i] - minPrice;
+			}
+		}
+		
+		return profit;
+	}
+	
+	//136. Single Number
+	public int singleNumber1(int[] nums) {
+		
+		System.gc();
+		beforeMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		
+		Map<Integer, Integer> map = new LinkedHashMap<Integer, Integer>();
+		
+		for (int i = 0; i < nums.length; i++) {
+			
+			int iNum = nums[i];
+			
+			Integer igNum = map.get(iNum);
+			if (igNum == null) {
+				map.put(iNum, iNum);
+			} else {
+				map.remove(iNum);
+			}
+		}
+		
+		Iterator<Integer> remainNum = map.keySet().iterator();
+		if (remainNum.hasNext()) {
+			
+			System.gc();
+			afterMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			System.out.println((beforeMemory - afterMemory)/1024/1024 + " byte");
+			
+			return remainNum.next();
+		} else {
+			
+			System.gc();
+			afterMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			System.out.println((beforeMemory - afterMemory)/1024/1024 + " byte");
+			
+			return 0;
+		}
+	}
+	public int singleNumber2(int[] nums) {
+		
+		System.gc();
+		beforeMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		
+		Map<Integer, Integer> map = new LinkedHashMap<Integer, Integer>();
+		
+		for (int i = 0; i < nums.length; i++) {
+			
+			int iNum = nums[i];
+			
+			Integer igNum = map.get(iNum);
+			if (igNum == null) {
+				map.put(iNum, 1);
+			} else {
+				map.put(iNum, ++igNum);
+			}
+		}
+		
+		for (Integer key : map.keySet()) {
+			if (map.get(key) == 1) {
+				
+				System.gc();
+				afterMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				System.out.println((beforeMemory - afterMemory)/1024/1024 + " byte");
+				
+				return key;
+			}
+		}
+		
+		System.gc();
+		afterMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		System.out.println((beforeMemory - afterMemory)/1024/1024 + " byte");
+		
+		return 0;
+	}
+	//int 변수 선언 시
+	public int singleNumber3(int[] nums) {
+		
+		System.gc();
+		beforeMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		
+		int source = nums[0];
+		
+		for (int i = 1; i < nums.length; i++) {
+			source ^= nums[i];
+		}
+		
+		System.gc();
+		afterMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		System.out.println((beforeMemory - afterMemory)/1024/1024 + " byte");
+		
+		return source;
+	}
+	//변수 선언 없이 파라미터로 받은 nums 배열에 다시 초기화
+	public int singleNumber4(int[] nums) {
+		
+		System.gc();
+		beforeMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		
+		for (int i = 1; i < nums.length; i++) {
+			nums[i] ^= nums[i - 1];
+		}
+		
+		System.gc();
+		afterMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		System.out.println((beforeMemory - afterMemory)/1024/1024 + " byte");
+		
+		return nums[nums.length - 1];
+	}
+	
+	//141. Linked List Cycle
+	public boolean hasCycle1(ListNode head) {
+		
+		List<ListNode> listNode = new ArrayList<ListNode>();
+		
+		while (head != null) {
+			
+			if (listNode.contains(head)) {
+				return true;
+			}
+			
+			listNode.add(head);
+			head = head.next;
+		}
+		
+		return false;
+	}
+	public boolean hasCycle2(ListNode head) {
+		
+		while (head != null) {
+			
+			if (head.val == 1000000) {
+				return true;
+			}
+			
+			head.val = 1000000;
+			head = head.next;
+		}
+		
+		return false;
+	}
+	
+	//160. Intersection of Two Linked Lists
+	public ListNode getIntersectionNode1(ListNode headA, ListNode headB) {
+		
+		Map<Integer, ListNode> mapListNode = new LinkedHashMap<Integer, ListNode>();
+		
+		while (headA != null) {
+			mapListNode.put(headA.val, headA);
+			headA = headA.next;
+		}
+		
+		while (headB != null) {
+			if (headB == mapListNode.get(headB.val)) {
+				return headB;
+			} else {
+				headB = headB.next;
+			}
+		}
+		
+		return null;
+	}
+	public ListNode getIntersectionNode2(ListNode headA, ListNode headB) {
+		
+		//listA, listB 전체 탐색 후 listB, listA를 연결하기 위해 headA, headB 객체를 유지한다.
+		ListNode tmpA = headA, tmpB = headB;
+		
+		//두 Node가 같지 않으면 다음 노드끼리 비교한다(같지 않은 것이 반복문 수행 조건).
+		while (tmpA != tmpB) {
+			tmpA = (tmpA == null) ? headB : tmpA.next;
+			tmpB = (tmpB == null) ? headA : tmpB.next;
+		}
+		//결합한 노드에서도 공통 노드를 찾지 못할 경우 tmpA == tmpB == null(tmpA와 tmpB 모두 null)로 반복문을 종료한다.
+		
+		return tmpA;
+//		return tmpB;//tmpB를 반환해도 상관없다.
+	}
+	
+}
