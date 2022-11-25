@@ -17,6 +17,12 @@ public class CompleteCalc extends Calculator {
 		}
 	}
 	
+	@Override
+	public void description() {
+		super.description();
+	}
+	//디폴트 메서드 description()을 CompleteCalc 클래스에서 원하는 기능으로 재정의
+	
 	public void showInfo() {
 		System.out.println("Calc 인터페이스를 구현하였습니다.");
 	}

@@ -11,6 +11,12 @@ public class CalculatorTest {
 		System.out.println(calc.substract(num1, num2));
 		System.out.println(calc.times(num1, num2));
 		System.out.println(calc.divide(num1, num2));
+		calc.showInfo();
+		
+		calc.description();//인터페이스에서 구현한 디폴트 메서드 호출
+		
+		int[] arr = {1, 2, 3, 4, 5};
+		System.out.println(Calc.total(arr));//정적 메서드 사용
 	}
 
 }
