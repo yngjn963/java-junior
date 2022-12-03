@@ -13,7 +13,7 @@ package collection;
  * 학번과 학생 이름처럼 쌍으로 되어 있는 자료를 관리할 때 사용하면 편리하다.
  */
 
-public class Member {
+public class Member implements Comparable<Member> {
 	private int memberId;	//회원 아이디
 	private String memberName;	//회원 이름
 	
@@ -60,5 +60,15 @@ public class Member {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public int compareTo(Member member) {
+		return (this.memberId - member.memberId);
+		/*
+		 * 두 값을 비교하여 새로 추가한 회원 아이디가 더 크면 양수, 그렇지 않으면 음수, 같으면 0을 반환하도록 만들었다.
+		 * 이렇게 구현하면 출력 결과 값은 오름차순으로 정렬된다.
+		 * return (this.memberId - member.memberId) * (-1);//내림차순으로 정렬하기 위해서는 반환 값을 음수로 만든다.
+		 */
 	}
 }
