@@ -1,4 +1,4 @@
-package gameLevel;
+package gamelevel;
 
 public class AdvancedLevel extends PlayerLevel {
 

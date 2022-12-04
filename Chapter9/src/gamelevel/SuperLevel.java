@@ -1,4 +1,4 @@
-package gameLevel;
+package gamelevel;
 
 public class SuperLevel extends PlayerLevel {
 

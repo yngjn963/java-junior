@@ -1,4 +1,4 @@
-package gameLevel;
+package gamelevel;
 
 public abstract class PlayerLevel {
 	public abstract void run();
