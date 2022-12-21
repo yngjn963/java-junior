@@ -8,6 +8,8 @@ public class TestStringConcat {
 //		StringConcatImpl concat1 = new StringConcatImpl();
 		StringConcat concat2 = (s, v) -> System.out.println(s + "," + v);
 		concat2.makeString(s1, s2);
+		
+		int i = 100;	// main() 함수의 지역 변수
 	}
 
 }
