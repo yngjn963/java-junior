@@ -10,6 +10,12 @@ public class TestStringConcat {
 		concat2.makeString(s1, s2);
 		
 		int i = 100;	// main() 함수의 지역 변수
+		
+		StringConcat concat2 = (s, v) -> {
+			//i = 200; //람다식 내부에서 변경하면 오류 발생
+			System.out.println(i);
+			System.out.println(s + "," + v);
+		};
 	}
 
 }
