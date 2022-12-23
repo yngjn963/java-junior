@@ -11,7 +11,7 @@ public class TestStringConcat {
 		
 		int i = 100;	// main() 함수의 지역 변수
 		
-		StringConcat concat2 = (s, v) -> {
+		StringConcat concat3 = (s, v) -> {
 			//i = 200; //람다식 내부에서 변경하면 오류 발생
 			System.out.println(i);
 			System.out.println(s + "," + v);
