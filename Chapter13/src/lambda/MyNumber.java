@@ -14,6 +14,7 @@ package lambda;
  * 하지만 중괄호 안의 구현 부분이 한 문장이더라도 return문은 중괄호를 생략할 수 없다.
  * 3. return 생략하기
  * 중괄호 안의 구현 부분이 return문 하나라면 중괄호와 return을 모두 생략하고 식만 쓴다.
+ * 
  */
 
 public interface MyNumber {
