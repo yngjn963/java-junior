@@ -20,7 +20,8 @@ package lambda;
  * 이를 함수형 인터페이스라고 한다.
  */
 
+@FunctionalInterface
 public interface MyNumber {
 	int getMax(int num1, int num2);
-	int add(int num1, int num2);
+//	int add(int num1, int num2); //메서드가 2개이므로 오류 발생
 }
