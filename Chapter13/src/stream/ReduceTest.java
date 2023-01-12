@@ -19,7 +19,6 @@ public class ReduceTest {
 
 	public static void main(String[] args) {
 		
-		
 	}
 
 }
