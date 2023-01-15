@@ -1,5 +1,8 @@
 package stream;
 
+import java.util.Arrays;
+import java.util.function.BinaryOperator;
+
 /*
  * 프로그래머가 기능을 지정하는 reduce() 연산
  * reduce() 연산은 내부적으로 스트림의 요소를 하나씩 소모하면서 프로그래머가 직접 지정한 기능을 수행한다.
@@ -15,11 +18,26 @@ package stream;
  * reduce()는 처음부터 마지막까지 모든 요소를 소모하면서 람다식을 반복해서 수행하므로 최종 연산이다.
  */
 
+class CompareString implements BinaryOperator<String> {
+	@Override
+	public String apply(String s1, String s2) { //reduce() 메서드가 호출될 때 불리는 메서드, 두 문자열 길이를 비교
+		if (s1.getBytes().length >= s2.getBytes().length) return s1;
+		else return s2;
+	}
+}
+
 public class ReduceTest {
 
 	public static void main(String[] args) {
-		//
+		String[] greetings = {"안녕하세요~~~", "hello", "Good morning", "반갑습니다^^"};
+		System.out.println(Arrays.stream(greetings) .reduce("", (s1, s2) -> { //람다식을 직접 구현하는 방법. 내부적으로 람다식 부분이 요소 개수만큼 반복해서 호출
+			//람다식으로 구현된 부분도 익명 클래스의 인스턴스가 생성되는 것이므로 내부적으로는 동일한 구조라 할 수 있다.
+			if (s1.getBytes().length >= s2.getBytes().length) return s1;
+			else return s2;
+		}));
 		
+		String str = Arrays.stream(greetings).reduce(new CompareString()).get(); //BinaryOperator를 구현한 클래스 사용
+		System.out.println(str);
 	}
 
 }
