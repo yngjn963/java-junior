@@ -21,7 +21,7 @@ package stream.inputstream;
 public class SystemInTest1 {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
 	}
 
 }
