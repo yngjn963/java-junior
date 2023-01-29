@@ -54,6 +54,19 @@ package stream.inputstream;
  * 
  * 하나의 스트림 클래스는 세 가지 분류로 나눌 수 있다.
  * 예를 들어 FileInputStream은 입력 스트림이자, 바이트 스트림이자, 기반 스트림이다.
+ * 
+ * 표준 입출력
+ * 자바에서는 화면에 출력하고 입력받는 표준 입출력 클래스를 미리 정의해 두었다.
+ * 이 클래스는 프로그램이 시작될 때 생성되므로 따로 만들 필요가 없다.
+ * 우리가 지금까지 화면 출력을 위해 사용한 System.out은 표준 출력을 위한 객체이다.
+ * 표준 입출력은 콘솔 화면에 입출력된다고 해서 콘솔 입출력이라고도 한다.
+ * 표준 입출력을 위한 System 클래스는 다음과 같이 세 개의 변수를 가지고 있다.
+ *       자료형                  변수 이름           설명
+ * static PrintStream	out		표준 출력 스트림 // 자료형에 사용한 PrintStream은 OutputStream의 하위 클래스이다.
+ * static InputStream	in		표준 입력 스트림
+ * static OutputStream	err		표준 오류 출력 스트림
+ * System.out은 표준 출력용, System.in은 표준 입력용 스트림이다.
+ * 빨간색으로 오류 메시지를 출력할 때는 System.err를 사용한다.
  */
 
 public class SystemInTest1 {
