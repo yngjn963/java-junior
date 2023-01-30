@@ -1,5 +1,7 @@
 package stream.inputstream;
 
+import java.io.IOException;
+
 /*
  * 입출력은 프로그램의 가장 기본 기능이지만, 외부 저장 장치나 네트워크와 연동해야 하기 때문에 장치에 따라 다르게 구현해야 한다.
  * 자바는 장치에 따라 독립적이고 효율적인 입출력 기능을 제공한다.
@@ -72,7 +74,16 @@ package stream.inputstream;
 public class SystemInTest1 {
 
 	public static void main(String[] args) {
+		System.out.println("알파벳 하나를 쓰고 [Enter]를 누르세요");
 		
+		int i;
+		try {
+			i = System.in.read(); // read() 메서드로 한 바이트 읽음
+			System.out.println(i);
+			System.out.println((char)i);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
