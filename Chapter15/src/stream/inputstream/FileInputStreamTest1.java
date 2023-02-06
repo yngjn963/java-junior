@@ -20,6 +20,13 @@ package stream.inputstream;
  * read() 메서드의 반환형은 int이다.
  * 한 바이트만 읽는 데 반환형이 int인 이유는 더 이상 읽어 들일 자료가 없는 경우에 정수 -1이 반환되기 때문이다.
  * 파일에서 자료를 읽는 경우 파일의 끝에 도달하면 -1이 반환된다.
+ * 
+ * FileInputStream
+ * FileInputStream은 파일에서 바이트 단위로 자료를 읽어 들일 때 사용하는 스트림 클래스
+ * FileInputStream 생성자
+ * 			생성자									설명
+ * FileInputStream(String name)	파일 이름 name(경로 포함)을 매개변수로 받아 입력 스트림을 생성한다.
+ * FileInputStream(File f)		File 클래스 정보를 매개변수로 받아 입력 스트림을 생성한다.
  */
 
 public class FileInputStreamTest1 {
