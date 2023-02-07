@@ -1,5 +1,7 @@
 package stream.inputstream;
 
+import java.io.FileInputStream;
+
 /*
  * InputStream
  * 바이트 단위로 읽는 스트림 중 최상위 스트림이다.
@@ -32,8 +34,7 @@ package stream.inputstream;
 public class FileInputStreamTest1 {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		FileInputStream fis = null;
 	}
 
 }
