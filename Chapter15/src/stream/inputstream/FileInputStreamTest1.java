@@ -39,9 +39,9 @@ public class FileInputStreamTest1 {
 		
 		try {
 			fis = new FileInputStream("input.txt");
-			System.out.println(fis.read());
-			System.out.println(fis.read());
-			System.out.println(fis.read());
+			System.out.println((char)fis.read());
+			System.out.println((char)fis.read());
+			System.out.println((char)fis.read());
 		} catch (IOException e) {
 			System.out.println(e);
 		} finally {
