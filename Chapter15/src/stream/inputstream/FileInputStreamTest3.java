@@ -19,7 +19,6 @@ public class FileInputStreamTest3 {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		System.out.println("end");
 		/*
 		 * 마지막에 6바이트를 읽었는데 출력 값은 Z 이후에 QRST가 더 출력되었다.
