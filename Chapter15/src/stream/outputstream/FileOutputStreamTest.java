@@ -18,7 +18,6 @@ public class FileOutputStreamTest {
 
 	public static void main(String[] args) {
 		
-		
 	}
 
 }
