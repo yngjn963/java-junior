@@ -22,7 +22,6 @@ public class FileWriterTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		System.out.println("출력이 완료되었습니다.");
 	}
 
