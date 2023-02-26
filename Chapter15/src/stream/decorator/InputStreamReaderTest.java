@@ -48,6 +48,7 @@ public class InputStreamReaderTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		/*
 		 * 표준 입출력 스트림 System.in과 System.out은 모두 바이트 스트림이다.
 		 * 특히 System.in은 콘솔 화면에서 한글을 읽으려면 InputStreamReader를 사용해야 한다.
