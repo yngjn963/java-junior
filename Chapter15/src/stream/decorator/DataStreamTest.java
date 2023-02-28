@@ -43,6 +43,7 @@ public class DataStreamTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		/*
 		 * 자바 입출력 스트림은 데코레이터 패턴이다.
 		 * 보조 스트림은 자바 입출력 스트림 클래스에 유동적이고 효율적으로 기능을 추가하거나 제거할 수 있는 클래스이다.
